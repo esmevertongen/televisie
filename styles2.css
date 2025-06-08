@@ -87,6 +87,7 @@
     z-index: 2;
     padding-left: 40px;
     padding-right: 620px; /* als je rechts meer ruimte wil behouden */
+    margin-top: 50px;
   }
 
   .backgroundcolor {
