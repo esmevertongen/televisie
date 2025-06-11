@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Welkom in alle talen</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: sans-serif;
+      cursor: pointer;
+    }
+
+    /* De video vult volledig het scherm */
+    #background-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1; /* Achter alle andere elementen */
+    }
+
+    .welcome {
+      position: absolute;
+      color: white;
+      font-size: 110px;
+      font-weight: 400;
+      text-shadow: 2px 2px 4px #333333;
+      white-space: nowrap;
+      opacity: 0;
+      animation: appearMove 6s ease-in-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes appearMove {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-100px);
+      }
+    }
+
+    .start-text {
+      position: fixed;
+      bottom: 30px;
+      width: 100%;
+      text-align: center;
+      font-size: 15px;
+      color: white;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body onclick="window.location.href='vlucht1.html'">
+
+  <!-- Video achtergrond -->
+  <video id="background-video" autoplay muted loop playsinline>
+    <source src="png/videohome.mp4" type="video/quicktime">
+    <!-- Fallback tekst -->
+    Your browser does not support the video tag.
+  </video>
+
+  <div class="start-text">druk om te starten</div>
+
+  <script>
+    const welcomes = [
+      "Welcome", "Bienvenido", "Добро пожаловать", "Bienvenue", "歡迎", "Willkommen", "Sveiki atvykę",
+      "Benvenuto", "Welkom", "Välkommen", "Velkommen", "Witamy", "ようこそ", "欢迎", "환영합니다",
+      "Bem-vindo", "Tervetuloa", "Καλώς ήρθατε", "ברוך הבא", "Selamat datang", "Üdvözöljük",
+      "Dobrodošli", "Bine ați venit", "Karibu", "Hoş geldiniz", "स्वागत है", "Chào mừng",
+      "Добре дошли", "ຍິນດີຕ້ອນຮັບ"
+    ];
+
+    let index = 0;
+    const placedRects = [];
+
+    function isOverlapping(rect1, rect2) {
+      return !(rect2.left > rect1.right ||
+               rect2.right < rect1.left ||
+               rect2.top > rect1.bottom ||
+               rect2.bottom < rect1.top);
+    }
+
+    function placeWithoutOverlap(element) {
+      const maxAttempts = 100;
+      let attempt = 0;
+
+      while (attempt < maxAttempts) {
+        const x = Math.random() * (window.innerWidth - element.offsetWidth);
+        const y = Math.random() * (window.innerHeight - element.offsetHeight - 60);
+
+        element.style.left = `${x}px`;
+        element.style.top = `${y}px`;
+
+        const rect = element.getBoundingClientRect();
+        let overlaps = false;
+
+        for (let placed of placedRects) {
+          if (isOverlapping(rect, placed.rect)) {
+            overlaps = true;
+            break;
+          }
+        }
+
+        if (!overlaps) {
+          placedRects.push({ element, rect });
+          return true;
+        }
+
+        attempt++;
+      }
+
+      return false;
+    }
+
+    function showNextWelcome() {
+      if (index >= welcomes.length) index = 0;
+
+      const word = welcomes[index];
+      const welcomeDiv = document.createElement('div');
+      welcomeDiv.className = 'welcome';
+      welcomeDiv.textContent = word;
+      document.body.appendChild(welcomeDiv);
+
+      requestAnimationFrame(() => {
+        if (!placeWithoutOverlap(welcomeDiv)) {
+          welcomeDiv.remove();
+        } else {
+          setTimeout(() => {
+            const i = placedRects.findIndex(item => item.element === welcomeDiv);
+            if (i !== -1) placedRects.splice(i, 1);
+            welcomeDiv.remove();
+          }, 6000);
+        }
+      });
+
+      index++;
+    }
+
+    // Start stroom van woorden, elke 2 seconden
+    setInterval(showNextWelcome, 2000);
+  </script>
+
+</body>
+</html>
